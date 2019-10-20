@@ -8,9 +8,5 @@ object Main extends App {
         t.start
         t
     }
-
-    override def main(args: Array[String]): Unit = {
-        print("Hello World!")
-    }
   
 }
