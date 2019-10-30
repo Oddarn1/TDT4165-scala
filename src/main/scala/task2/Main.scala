@@ -1,5 +1,18 @@
 package task2
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
+
+object Dead{
+  lazy val x="Deadlock"
+  lazy val y:String=Lock.x
+}
+
+object Lock{
+  lazy val x:String=Dead.x
+}
+
 object Main {
 
   //task 2a
@@ -15,9 +28,6 @@ object Main {
   private var counter:Int=0
   def IncreaseCounter():Unit=counter+=1
 
-  //Task 2c
-  def ThreadSafeIncreaseCounter():Unit=this.synchronized{counter+=1}
-
   //Task 2b
   def PrintCounter():Unit=print(counter)
 
@@ -32,8 +42,21 @@ object Main {
     c2.start()
   }
 
+  //Task 2c
+  def ThreadSafeIncreaseCounter():Unit=this.synchronized{counter+=1}
+
+  //Task2d
+  /*Deadlock can happen when two threads are waiting for resources from each other, but this resource is locked
+  from access when a thread is using one resource.*/
+
+  //Function will not always cause deadlock, but in some cases. If nothing happens for 15 seconds, we have a deadlock
+  //The program crashes if deadlock is held for 15 seconds.
+  def DeadLockExample():Unit={
+    val deadlock=Future.sequence(Seq(Future {Dead.y} , Future {Lock.x}))
+    Await.result(deadlock,Duration(15,"seconds"))
+  }
 
   def main(args: Array[String]): Unit = {
-    ThreadedCounter()
+    DeadLockExample()
   }
 }
