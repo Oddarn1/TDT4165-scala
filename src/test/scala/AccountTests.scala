@@ -125,7 +125,7 @@ class AccountTransferTests extends FunSuite {
   }
 
 
-  test("Test 10: Correct balance amounts after several transfers") {
+  /*test("Test 10: Correct balance amounts after several transfers") {
     val bank = new Bank()
 
     val acc1 = new Account(bank, 3000)
@@ -175,7 +175,7 @@ class AccountTransferTests extends FunSuite {
 
   }
 
-  /*test("Test 12: Some transactions should be stopped with only one allowed attempt") {
+  test("Test 12: Some transactions should be stopped with only one allowed attempt") {
     var failed = 0
     for (x <- 1 to 100) {
       val bank = new Bank(allowedAttempts = 1)
