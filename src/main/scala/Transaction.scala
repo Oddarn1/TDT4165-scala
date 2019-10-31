@@ -1,5 +1,8 @@
 import exceptions._
+
 import scala.collection.mutable
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object TransactionStatus extends Enumeration {
   val SUCCESS, PENDING, FAILED = Value
@@ -13,23 +16,23 @@ class TransactionQueue {
     private var transactionQueue:mutable.Queue[Transaction]=new mutable.Queue[Transaction]
 
     // Remove and return the first element from the queue
-    def pop: Transaction = {
+    def pop: Transaction = transactionQueue.synchronized{
       val head:Transaction=transactionQueue.front
       transactionQueue=transactionQueue.tail
       head
     }
 
     // Return whether the queue is empty
-    def isEmpty: Boolean = transactionQueue.isEmpty
+    def isEmpty: Boolean = transactionQueue.synchronized(transactionQueue.isEmpty)
 
     // Add new element to the back of the queue
-    def push(t: Transaction): Unit = transactionQueue.enqueue(t)
+    def push(t: Transaction): Unit = transactionQueue.synchronized(transactionQueue.enqueue(t))
 
     // Return the first element from the queue without removing it
-    def peek: Transaction = transactionQueue.front
+    def peek: Transaction = transactionQueue.synchronized(transactionQueue.front)
 
     // Return an iterator to allow you to iterate over the queue
-    def iterator: Iterator[Transaction] = transactionQueue.iterator
+    def iterator: Iterator[Transaction] = transactionQueue.synchronized(transactionQueue.iterator)
 }
 
 class Transaction(val transactionsQueue: TransactionQueue,
@@ -44,17 +47,31 @@ class Transaction(val transactionsQueue: TransactionQueue,
 
   override def run: Unit = {
 
-      def doTransaction() = {
+      def doTransaction():Unit ={
+        var result=from.withdraw(amount)
+        if(result.isLeft){
+          to.deposit(amount)
+          status=TransactionStatus.SUCCESS
+          processedTransactions.push(this)
+        }else if(attempt==allowedAttemps) {
+          status = TransactionStatus.FAILED
+          processedTransactions.push(this)
+        }else if(result.isRight){
+          status = TransactionStatus.FAILED
+          processedTransactions.push(this)
+        }else{
+          attempt += 1
+          status = TransactionStatus.PENDING
+          doTransaction
+        }
           // TODO - project task 3
-          // Extend this method to satisfy requirements.
-          from withdraw amount
-          to deposit amount
+          // Extend this method to satisfy requirements
       }
 
       // TODO - project task 3
       // make the code below thread safe
       if (status == TransactionStatus.PENDING) {
-          doTransaction
+          transactionsQueue.synchronized(doTransaction)
           Thread.sleep(50) // you might want this to make more room for
                            // new transactions to be added to the queue
       }

@@ -4,26 +4,18 @@ class Bank(val allowedAttempts: Integer = 3) {
     private val transactionsQueue: TransactionQueue = new TransactionQueue()
     private val processedTransactions: TransactionQueue = new TransactionQueue()
 
-    def addTransactionToQueue(from: Account, to: Account, amount: Double): Unit = {
-        transactionsQueue.push(new Transaction(transactionsQueue,processedTransactions,from,to,amount,1))
+    def addTransactionToQueue(from: Account, to: Account, amount: Double): Unit = transactionsQueue.synchronized{
+        val t=new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttempts)
+        transactionsQueue.push(t)
         Main.thread(processTransactions)
     }
                                                 // project task 2
                                                 // create a new transaction object and put it in the queue
                                                 // spawn a thread that calls processTransactions
 
-    private def processTransactions: Unit = {
-        while (!transactionsQueue.isEmpty){
-            val transaction:Transaction=transactionsQueue.pop
-            if(transaction.status==TransactionStatus.PENDING){
-                transactionsQueue.push(transaction)
-            }else if (transaction.allowedAttemps==transaction.attempt){
-                transaction.status=TransactionStatus.FAILED
-            }else{
-                Main.thread(transaction.run)
-                processedTransactions.push(transaction)
-            }
-        }
+    private def processTransactions: Unit ={
+        val transaction:Transaction=transactionsQueue.pop
+        Main.thread(transaction.run)
     }
                                                 // project task 2
                                                 // Function that pops a transaction from the queue
