@@ -27,7 +27,8 @@ object Main {
   }
 
   //task 1d
-  //BigInt has no upper limit of integer precision, as long as enough memory is available.
+  /*BigInt has no upper limit of integer precision, as long as enough memory is available. I.e. BigInt can be an
+  * arbitrarily big integer.*/
   def fibRecursive(x1:BigInt,x2:BigInt, n:Int):BigInt={
     if (n==0){
       x2
