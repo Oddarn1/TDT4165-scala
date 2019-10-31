@@ -27,6 +27,7 @@ object Main {
   }
 
   //task 1d
+  //BigInt has no upper limit of integer precision, as long as enough memory is available.
   def fibRecursive(x1:BigInt,x2:BigInt, n:Int):BigInt={
     if (n==0){
       x2
@@ -37,9 +38,9 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     val x=array50()
-    print(x)
-    print("\n"+sumArray(x))
-    print("\n"+sumArrayRecursive(x,0))
-    print("\n"+fibRecursive(0,1,10))
+    print("List from 1 to 50: "+x)
+    print("\nSum of list above: "+sumArray(x))
+    print("\nSum of list calculated recursively: "+sumArrayRecursive(x,0))
+    print("\nFibonacci number 10: "+fibRecursive(0,1,10))
   }
 }
