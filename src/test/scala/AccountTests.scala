@@ -125,7 +125,7 @@ class AccountTransferTests extends FunSuite {
   }
 
 
-  /*test("Test 10: Correct balance amounts after several transfers") {
+  test("Test 10: Correct balance amounts after several transfers") {
     val bank = new Bank()
 
     val acc1 = new Account(bank, 3000)
@@ -194,5 +194,5 @@ class AccountTransferTests extends FunSuite {
       if (!(acc2.getBalanceAmount != 300 && acc3.getBalanceAmount == 0)) failed += 1
     }
     assert(failed <= 5)
-  }*/
+  }
 }

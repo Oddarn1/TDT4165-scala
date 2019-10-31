@@ -13,15 +13,21 @@ class Bank(val allowedAttempts: Integer = 3) {
                                                 // create a new transaction object and put it in the queue
                                                 // spawn a thread that calls processTransactions
 
-    private def processTransactions: Unit ={
-        val transaction:Transaction=transactionsQueue.pop
-        transactionsQueue.synchronized({
-            Main.thread(transaction.run)
-            if (transaction.status == TransactionStatus.PENDING) {
-                transactionsQueue.push(transaction)
-                processTransactions
-            }
-        })
+    private def processTransactions: Unit = {
+        val transaction: Transaction = transactionsQueue.pop
+        if (transaction.status==TransactionStatus.SUCCESS||transaction.status==TransactionStatus.FAILED){
+            processedTransactions.push(transaction)
+        }else{
+            Main.thread({
+                transaction.run
+                if (transaction.status == TransactionStatus.PENDING) {
+                    transactionsQueue.push(transaction)
+                    Main.thread(processTransactions)
+                } else {
+                    processedTransactions.push(transaction)
+                }
+            })
+        }
     }
                                                 // project task 2
                                                 // Function that pops a transaction from the queue
