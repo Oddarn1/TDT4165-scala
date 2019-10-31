@@ -1,6 +1,3 @@
-import java.lang.Exception
-
-import exceptions._
 
 class Bank(val allowedAttempts: Integer = 3) {
 
@@ -11,7 +8,6 @@ class Bank(val allowedAttempts: Integer = 3) {
         transactionsQueue.push(new Transaction(transactionsQueue,processedTransactions,from,to,amount,1))
         Main.thread(processTransactions)
     }
-                                                // TODO
                                                 // project task 2
                                                 // create a new transaction object and put it in the queue
                                                 // spawn a thread that calls processTransactions
@@ -25,10 +21,10 @@ class Bank(val allowedAttempts: Integer = 3) {
                 transaction.status=TransactionStatus.FAILED
             }else{
                 Main.thread(transaction.run)
+                processedTransactions.push(transaction)
             }
         }
     }
-                                                // TODO
                                                 // project task 2
                                                 // Function that pops a transaction from the queue
                                                 // and spawns a thread to execute the transaction.
