@@ -18,7 +18,7 @@ class Account(val bank: Bank, initialBalance: Double) {
         if (amount < 0) return Right("Can't deposit negative values")
         return Left(balance.amount += amount)
     }
-    def getBalanceAmount: Double = balance.amount
+    def getBalanceAmount: Double = this.synchronized{ balance.amount }
 
     def transferTo(account: Account, amount: Double):Unit = {
         bank addTransactionToQueue (this, account, amount)

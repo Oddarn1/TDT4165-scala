@@ -61,7 +61,7 @@ class Transaction(val transactionsQueue: TransactionQueue,
     // TODO - project task 3
     // make the code below thread safe
     if (status == TransactionStatus.PENDING) {
-      val result=from.synchronized(to.synchronized(doTransaction()))
+      val result=doTransaction()
       status = result match {
         case Left(_) => TransactionStatus.SUCCESS
         case Right(_) =>

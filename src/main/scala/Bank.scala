@@ -15,18 +15,12 @@ class Bank(val allowedAttempts: Integer = 3) {
 
     private def processTransactions: Unit = {
         val transaction: Transaction = transactionsQueue.pop
-        if (transaction.status==TransactionStatus.SUCCESS||transaction.status==TransactionStatus.FAILED){
+        transaction.run
+        if (transaction.status == TransactionStatus.PENDING) {
+            transactionsQueue.push(transaction)
+            Main.thread(processTransactions)
+        } else {
             processedTransactions.push(transaction)
-        }else{
-            Main.thread({
-                transaction.run
-                if (transaction.status == TransactionStatus.PENDING) {
-                    transactionsQueue.push(transaction)
-                    Main.thread(processTransactions)
-                } else {
-                    processedTransactions.push(transaction)
-                }
-            })
         }
     }
                                                 // project task 2
