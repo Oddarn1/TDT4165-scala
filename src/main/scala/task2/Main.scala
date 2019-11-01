@@ -22,21 +22,35 @@ object Main {
     }
   }
 
-  //Dummy-function for testing thread-function
-  def sum(x1:Int,x2:Int):Unit=print(x1+x2)
-
   private var counter:Int=0
+
   def IncreaseCounter():Unit=counter+=1
 
   //Task 2b
-  def PrintCounter():Unit=print(counter)
+  def PrintCounter(safe:Boolean):Unit=print(if(safe)safeCounter else counter)
 
-  //Task 2b
-  //Remove comments for thread-safe version
-  def ThreadedCounter():Unit={
-    val p=thread(PrintCounter())
-    val c1=thread(/*ThreadSafe*/IncreaseCounter())
-    val c2=thread(/*ThreadSafe*/IncreaseCounter())
+  /*
+
+    Task 2b
+
+    **Use safe=false for not-threadsafe counter.**
+
+    With standard threaded counter, there might be concurrency problems, where the print is executed before
+    one or both counters has been started. This is known as a race condition, and is a problem when executing
+    multiple operations at once where you have no way to tell which is executed first, and the order is important.
+
+    Upon running the ThreadedCounter we will most of the time get 2. But on rare occasions, we will get 1.
+    Since c1 and c2 are run concurrently one of the counters might read the counter-value before the other one
+    is finished, and thus they end up writing the same value.
+    This can be problematic in any situation where different threads does operations on the same variable. In this
+    case, a counter.
+
+  */
+
+  def ThreadedCounter(safe:Boolean):Unit={
+    val p=thread(PrintCounter(safe))
+    val c1=if(safe) thread(ThreadSafeIncreaseCounter()) else thread(IncreaseCounter())
+    val c2=if(safe) thread(ThreadSafeIncreaseCounter()) else thread(IncreaseCounter())
     c1.start()
     c2.start()
 
@@ -46,16 +60,9 @@ object Main {
     p.start()
   }
 
-  /*
-    Upon running this code we will most of the time get 2. But on rare occasions, we will get 1.
-    Since c1 and c2 are run concurrently one of the counters might read the counter-value before the other one
-    is finished, and thus they end up writing the same value.
-    This can be problematic in any situation where different threads does operations on the same variable. In this
-    case, a counter.
-  */
-
   //Task 2c
-  def ThreadSafeIncreaseCounter():Unit=this.synchronized{counter+=1}
+  var safeCounter=0
+  def ThreadSafeIncreaseCounter():Unit=this.synchronized(safeCounter+=1)
 
   /*
     Task 2d
@@ -63,8 +70,8 @@ object Main {
     Deadlocks can happen whenever two threads are waiting for resources from each other, but this resource is locked
     from access when a thread is using one resource.
 
-    The function below will not always cause deadlock, only in some cases. If nothing happens for 15 seconds, we have
-    a deadlock. The program crashes if a deadlock is held for 15 seconds.
+    The function below will not always cause deadlock, only in some cases. If nothing happens for 10 seconds, we have
+    a deadlock. The program crashes if a deadlock is held for 10 seconds.
 
     To prevent a deadlock we can use atomic execution so that the critical region is not parallel. We can also
     make sure that locks happen a prioritized order, such that you ensure that any threads won't be waiting for others.
@@ -78,11 +85,20 @@ object Main {
 
   def DeadLockExample():Unit={
     val deadlock=Future.sequence(Seq(Future {Dead.y} , Future {Lock.x}))
-    Await.result(deadlock,Duration(15,"seconds"))
+    Await.result(deadlock,Duration(10,"seconds"))
   }
 
   def main(args: Array[String]): Unit = {
-    ThreadedCounter()
-    //DeadLockExample()
+    print("Disclaimer: Wanted results may not always happen. Threaded counter and DeadlockExample may give different" +
+      " results on different runs. \nPlease try again if wanted result is not present.\n")
+    print("There is about a 1 in 100 chance of ThreadedCounter printing 1 instead of 2, but it does happen\n\n")
+    print("Threaded counter:")
+    ThreadedCounter(safe=false)
+    Thread.sleep(500)
+    print("\nThreadsafe counter:")
+    ThreadedCounter(safe=true)
+    Thread.sleep(500)
+    print("\nIf nothing happens for 10 seconds, there is a deadlock, program will crash.")
+    DeadLockExample()
   }
 }
