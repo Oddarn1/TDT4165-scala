@@ -30,7 +30,6 @@ class Bank(val allowedAttempts: Integer = 3) {
                                                 // the transaction succeeded or not
 
 
-
     def addAccount(initialBalance: Double): Account = {
         new Account(this, initialBalance)
     }
