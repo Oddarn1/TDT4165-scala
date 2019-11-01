@@ -1,4 +1,4 @@
-import exceptions._
+
 
 class Account(val bank: Bank, initialBalance: Double) {
 
@@ -12,15 +12,15 @@ class Account(val bank: Bank, initialBalance: Double) {
         if (amount < 0) return Right("Can't withdraw negative values")
         val newBalance = balance.amount - amount
         if (newBalance < 0) return Right("Not enough money")
-        Left(balance.amount = newBalance)
+        return Left(balance.amount = newBalance)
     }
     def deposit (amount: Double): Either[Unit, String] = this.synchronized {
         if (amount < 0) return Right("Can't deposit negative values")
-        Left(balance.amount += amount)
+        return Left(balance.amount += amount)
     }
-    def getBalanceAmount: Double = balance.amount
+    def getBalanceAmount: Double = this.synchronized{ balance.amount }
 
-    def transferTo(account: Account, amount: Double) = {
+    def transferTo(account: Account, amount: Double):Unit = {
         bank addTransactionToQueue (this, account, amount)
     }
 

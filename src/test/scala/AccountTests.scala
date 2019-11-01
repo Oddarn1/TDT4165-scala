@@ -174,7 +174,6 @@ class AccountTransferTests extends FunSuite {
     assert(failed <= 5)
 
   }
-
   test("Test 12: Some transactions should be stopped with only one allowed attempt") {
     var failed = 0
     for (x <- 1 to 100) {
@@ -195,5 +194,4 @@ class AccountTransferTests extends FunSuite {
     }
     assert(failed <= 5)
   }
-
 }
