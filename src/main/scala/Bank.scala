@@ -7,18 +7,18 @@ class Bank(val allowedAttempts: Integer = 3) {
     def addTransactionToQueue(from: Account, to: Account, amount: Double): Unit = this.synchronized{
         val t=new Transaction(transactionsQueue, processedTransactions, from, to, amount, allowedAttempts)
         transactionsQueue.push(t)
-        Main.thread(processTransactions)
+        Main.thread(processTransactions())
     }
                                                 // project task 2
                                                 // create a new transaction object and put it in the queue
                                                 // spawn a thread that calls processTransactions
 
-    private def processTransactions: Unit = {
+    private def processTransactions(): Unit = {
         val transaction: Transaction = transactionsQueue.pop
-        transaction.run
+        transaction.run()
         if (transaction.status == TransactionStatus.PENDING) {
             transactionsQueue.push(transaction)
-            Main.thread(processTransactions)
+            Main.thread(processTransactions())
         } else {
             processedTransactions.push(transaction)
         }

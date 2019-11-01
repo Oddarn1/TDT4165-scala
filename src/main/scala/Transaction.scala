@@ -1,8 +1,4 @@
-import exceptions._
-
 import scala.collection.mutable
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 object TransactionStatus extends Enumeration {
   val SUCCESS, PENDING, FAILED = Value
@@ -10,7 +6,6 @@ object TransactionStatus extends Enumeration {
 
 class TransactionQueue {
 
-    // TODO: Add thread-safety
     // project task 1.1
     // Add datastructure to contain the transactions
     private var transactionQueue:mutable.Queue[Transaction]=new mutable.Queue[Transaction]
@@ -46,7 +41,7 @@ class Transaction(val transactionsQueue: TransactionQueue,
   var status: TransactionStatus.Value = TransactionStatus.PENDING
   var attempt = 0
 
-  override def run: Unit = {
+  override def run(): Unit = {
 
     def doTransaction(): Either[Unit, String] = {
       val x=from withdraw amount
@@ -55,11 +50,7 @@ class Transaction(val transactionsQueue: TransactionQueue,
       }
       x
     }
-    // TODO - project task 3
-    // Extend this method to satisfy requirements
 
-    // TODO - project task 3
-    // make the code below thread safe
     if (status == TransactionStatus.PENDING) {
       val result=doTransaction()
       status = result match {
